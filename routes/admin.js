@@ -1,5 +1,5 @@
 const express = require('express');
-const { verifyToken } = require('./auth');
+const { verifyToken } = require('../middleware/auth');
 const Game = require('../models/Game');
 const Pack = require('../models/Pack');
 const Order = require('../models/Order');
