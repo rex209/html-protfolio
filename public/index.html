@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameTopUp - Top Up Games Instantly</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .game-card {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .hero-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg hero-pattern shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-gamepad text-white text-3xl"></i>
+                    <h1 class="text-2xl font-bold text-white">GameTopUp</h1>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#" class="text-white hover:text-gray-200 transition-colors">Home</a>
+                    <a href="#track" class="text-white hover:text-gray-200 transition-colors">Track Order</a>
+                    <a href="#support" class="text-white hover:text-gray-200 transition-colors">Support</a>
+                </nav>
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-white">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg hero-pattern py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-6xl font-bold text-white mb-6">
+                Top Up Your Games <span class="text-yellow-300">Instantly</span>
+            </h2>
+            <p class="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
+                Fast, secure, and reliable game top-ups for all your favorite games. 
+                Get your diamonds, coins, and credits in seconds!
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="scrollToGames()" class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-play mr-2"></i>
+                    Browse Games
+                </button>
+                <button onclick="openTrackModal()" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors">
+                    <i class="fas fa-search mr-2"></i>
+                    Track My Order
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center mb-12 text-gray-800">Why Choose GameTopUp?</h3>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bolt text-blue-600 text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-2">Instant Delivery</h4>
+                    <p class="text-gray-600">Get your top-ups delivered instantly after payment verification</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-green-600 text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-2">100% Secure</h4>
+                    <p class="text-gray-600">Your transactions are protected with bank-level security</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-headset text-purple-600 text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-2">24/7 Support</h4>
+                    <p class="text-gray-600">Our support team is always ready to help you</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Games Section -->
+    <section id="games" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center mb-12 text-gray-800">Popular Games</h3>
+            
+            <!-- Loading State -->
+            <div id="loading" class="text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <p class="mt-4 text-gray-600">Loading games...</p>
+            </div>
+
+            <!-- Games Grid -->
+            <div id="games-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden">
+                <!-- Games will be loaded here -->
+            </div>
+
+            <!-- No Games Message -->
+            <div id="no-games" class="text-center py-12 hidden">
+                <i class="fas fa-gamepad text-gray-400 text-6xl mb-4"></i>
+                <p class="text-gray-600">No games available at the moment</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Track Order Modal -->
+    <div id="trackModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">Track Your Order</h3>
+                    <button onclick="closeTrackModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="trackForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">Order ID or Game ID</label>
+                        <input type="text" id="trackInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter Order ID or Game ID" required>
+                    </div>
+                    <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-search mr-2"></i>
+                        Track Order
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Info Section -->
+    <section id="support" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center mb-12 text-gray-800">Payment Information</h3>
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg p-6 text-white text-center">
+                    <i class="fas fa-mobile-alt text-3xl mb-4"></i>
+                    <h4 class="text-xl font-semibold mb-2">UPI Payment</h4>
+                    <p class="text-lg font-mono bg-white bg-opacity-20 rounded px-4 py-2 inline-block">
+                        7002610853@fam
+                    </p>
+                    <p class="mt-4 text-sm opacity-90">
+                        Send payment to this UPI ID and enter the transaction ID during checkout
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <i class="fas fa-gamepad text-2xl"></i>
+                        <span class="text-xl font-bold">GameTopUp</span>
+                    </div>
+                    <p class="text-gray-400">Your trusted partner for game top-ups</p>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">Quick Links</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Home</a></li>
+                        <li><a href="#games" class="hover:text-white">Games</a></li>
+                        <li><a href="#" onclick="openTrackModal()" class="hover:text-white">Track Order</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">Support</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Help Center</a></li>
+                        <li><a href="#" class="hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">Follow Us</h5>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 GameTopUp. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let games = [];
+
+        // DOM Elements
+        const gamesGrid = document.getElementById('games-grid');
+        const loading = document.getElementById('loading');
+        const noGames = document.getElementById('no-games');
+        const trackModal = document.getElementById('trackModal');
+        const trackForm = document.getElementById('trackForm');
+        const trackInput = document.getElementById('trackInput');
+
+        // Load games on page load
+        document.addEventListener('DOMContentLoaded', loadGames);
+
+        // Load games from API
+        async function loadGames() {
+            try {
+                const response = await fetch('/api/games');
+                if (!response.ok) throw new Error('Failed to load games');
+                
+                games = await response.json();
+                renderGames();
+            } catch (error) {
+                console.error('Error loading games:', error);
+                showNoGames();
+            }
+        }
+
+        // Render games grid
+        function renderGames() {
+            if (games.length === 0) {
+                showNoGames();
+                return;
+            }
+
+            gamesGrid.innerHTML = games.map(game => `
+                <div class="game-card bg-white rounded-lg shadow-md overflow-hidden cursor-pointer" onclick="selectGame('${game._id}')">
+                    <div class="aspect-w-16 aspect-h-9">
+                        <img src="${game.image}" alt="${game.name}" class="w-full h-48 object-cover">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-lg mb-2">${game.name}</h4>
+                        <p class="text-gray-600 text-sm mb-3">${game.description}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="bg-${game.isPopular ? 'red' : 'blue'}-100 text-${game.isPopular ? 'red' : 'blue'}-800 px-2 py-1 rounded text-xs font-medium">
+                                ${game.isPopular ? 'Popular' : game.category}
+                            </span>
+                            <i class="fas fa-arrow-right text-purple-600"></i>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            loading.classList.add('hidden');
+            gamesGrid.classList.remove('hidden');
+        }
+
+        // Show no games message
+        function showNoGames() {
+            loading.classList.add('hidden');
+            noGames.classList.remove('hidden');
+        }
+
+        // Select game
+        function selectGame(gameId) {
+            window.location.href = `/game/${gameId}`;
+        }
+
+        // Scroll to games section
+        function scrollToGames() {
+            document.getElementById('games').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Open track modal
+        function openTrackModal() {
+            trackModal.classList.remove('hidden');
+            trackInput.focus();
+        }
+
+        // Close track modal
+        function closeTrackModal() {
+            trackModal.classList.add('hidden');
+            trackForm.reset();
+        }
+
+        // Handle track form submission
+        trackForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = trackInput.value.trim();
+            
+            if (input) {
+                // Check if it's an order ID (contains 'ORDER-') or game ID
+                if (input.includes('ORDER-')) {
+                    window.location.href = `/order/${input}`;
+                } else {
+                    window.location.href = `/track?gameId=${input}`;
+                }
+            }
+        });
+
+        // Close modal when clicking outside
+        trackModal.addEventListener('click', (e) => {
+            if (e.target === trackModal) {
+                closeTrackModal();
+            }
+        });
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        mobileMenuBtn.addEventListener('click', () => {
+            // Add mobile menu functionality if needed
+        });
+    </script>
+</body>
+</html>
