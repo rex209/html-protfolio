@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status - GameTopUp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .status-pending { color: #f59e0b; }
+        .status-processing { color: #3b82f6; }
+        .status-completed { color: #10b981; }
+        .status-failed { color: #ef4444; }
+        .status-cancelled { color: #6b7280; }
+        .timeline-item {
+            position: relative;
+            padding-left: 3rem;
+            padding-bottom: 2rem;
+        }
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e7eb;
+        }
+        .timeline-item:last-child:before {
+            display: none;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: 0;
+            top: 0.25rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="/" class="text-white hover:text-gray-200">
+                        <i class="fas fa-home mr-2"></i>
+                        Home
+                    </a>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-gamepad text-white text-2xl"></i>
+                    <h1 class="text-xl font-bold text-white">GameTopUp</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            <p class="mt-4 text-gray-600">Loading order details...</p>
+        </div>
+
+        <!-- Order Details -->
+        <div id="order-details" class="hidden">
+            <div class="max-w-4xl mx-auto">
+                <!-- Order Header -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800 mb-2">Order Details</h1>
+                            <p class="text-gray-600">Order ID: <span id="order-id" class="font-mono font-semibold">-</span></p>
+                        </div>
+                        <div class="mt-4 md:mt-0">
+                            <div id="order-status" class="px-4 py-2 rounded-lg font-semibold text-center">
+                                <i class="fas fa-circle mr-2"></i>
+                                <span id="status-text">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <!-- Order Information -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-bold mb-4">Order Information</h2>
+                        <div class="space-y-4">
+                            <div id="game-info" class="flex items-center space-x-4">
+                                <!-- Game info will be loaded here -->
+                            </div>
+                            <div class="border-t pt-4">
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-600">Game ID:</span>
+                                        <p id="game-id" class="font-semibold">-</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">Zone ID:</span>
+                                        <p id="zone-id" class="font-semibold">-</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">Pack:</span>
+                                        <p id="pack-name" class="font-semibold">-</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">Amount:</span>
+                                        <p id="amount" class="font-semibold text-purple-600">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-bold mb-4">Payment Information</h2>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-600">Method:</span>
+                                    <p id="payment-method" class="font-semibold">UPI</p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Transaction ID:</span>
+                                    <p id="transaction-id" class="font-semibold font-mono">-</p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">UPI ID:</span>
+                                    <p id="upi-id" class="font-semibold">7002610853@fam</p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Order Date:</span>
+                                    <p id="order-date" class="font-semibold">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Timeline -->
+                <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                    <h2 class="text-xl font-bold mb-6">Order Timeline</h2>
+                    <div id="order-timeline" class="space-y-4">
+                        <!-- Timeline will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                    <h2 class="text-xl font-bold mb-4">Need Help?</h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="text-center p-4 border border-gray-200 rounded-lg">
+                            <i class="fas fa-refresh text-purple-600 text-2xl mb-2"></i>
+                            <h3 class="font-semibold mb-2">Refresh Status</h3>
+                            <button onclick="loadOrder()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                                <i class="fas fa-sync-alt mr-2"></i>
+                                Refresh
+                            </button>
+                        </div>
+                        <div class="text-center p-4 border border-gray-200 rounded-lg">
+                            <i class="fas fa-headset text-blue-600 text-2xl mb-2"></i>
+                            <h3 class="font-semibold mb-2">Contact Support</h3>
+                            <p class="text-sm text-gray-600 mb-3">Having issues with your order?</p>
+                            <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-comments mr-2"></i>
+                                Get Help
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden text-center py-12">
+            <i class="fas fa-exclamation-triangle text-red-500 text-6xl mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Order Not Found</h2>
+            <p class="text-gray-600 mb-6">The order you're looking for doesn't exist or has been removed.</p>
+            <a href="/" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                <i class="fas fa-home mr-2"></i>
+                Go Back Home
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Get order ID from URL
+        const orderId = window.location.pathname.split('/').pop();
+        
+        // DOM Elements
+        const loading = document.getElementById('loading');
+        const orderDetails = document.getElementById('order-details');
+        const errorState = document.getElementById('error-state');
+        const orderIdElement = document.getElementById('order-id');
+        const orderStatus = document.getElementById('order-status');
+        const statusText = document.getElementById('status-text');
+        const gameInfo = document.getElementById('game-info');
+        const gameId = document.getElementById('game-id');
+        const zoneId = document.getElementById('zone-id');
+        const packName = document.getElementById('pack-name');
+        const amount = document.getElementById('amount');
+        const transactionId = document.getElementById('transaction-id');
+        const orderDate = document.getElementById('order-date');
+        const orderTimeline = document.getElementById('order-timeline');
+
+        // Load order on page load
+        document.addEventListener('DOMContentLoaded', loadOrder);
+
+        // Load order data
+        async function loadOrder() {
+            try {
+                loading.classList.remove('hidden');
+                orderDetails.classList.add('hidden');
+                errorState.classList.add('hidden');
+
+                const response = await fetch(`/api/orders/${orderId}`);
+                if (!response.ok) {
+                    throw new Error('Order not found');
+                }
+
+                const order = await response.json();
+                renderOrderDetails(order);
+            } catch (error) {
+                console.error('Error loading order:', error);
+                showError();
+            }
+        }
+
+        // Render order details
+        function renderOrderDetails(order) {
+            orderIdElement.textContent = order.orderId;
+            
+            // Update status
+            const statusClass = `status-${order.status}`;
+            statusText.textContent = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+            orderStatus.className = `px-4 py-2 rounded-lg font-semibold text-center ${statusClass}`;
+
+            // Game info
+            gameInfo.innerHTML = `
+                <img src="${order.gameId.image}" alt="${order.gameId.name}" class="w-16 h-16 object-cover rounded-lg">
+                <div>
+                    <h3 class="font-semibold text-lg">${order.gameId.name}</h3>
+                    <p class="text-gray-600">${order.gameId.category}</p>
+                </div>
+            `;
+
+            // Order details
+            gameId.textContent = order.gameDetails.gameId;
+            zoneId.textContent = order.gameDetails.zoneId || 'N/A';
+            packName.textContent = order.packId.name;
+            amount.textContent = `₹${order.payment.amount}`;
+            transactionId.textContent = order.payment.transactionId;
+            orderDate.textContent = new Date(order.createdAt).toLocaleString();
+
+            // Timeline
+            renderTimeline(order);
+
+            loading.classList.add('hidden');
+            orderDetails.classList.remove('hidden');
+        }
+
+        // Render timeline
+        function renderTimeline(order) {
+            const timeline = [
+                {
+                    status: 'pending',
+                    title: 'Order Placed',
+                    description: 'Your order has been received and is waiting for admin approval',
+                    date: order.createdAt,
+                    completed: true
+                },
+                {
+                    status: 'processing',
+                    title: 'Processing',
+                    description: 'Your order is being processed through our system',
+                    date: order.processedAt,
+                    completed: ['processing', 'completed'].includes(order.status)
+                },
+                {
+                    status: 'completed',
+                    title: 'Completed',
+                    description: 'Your top-up has been successfully delivered',
+                    date: order.completedAt,
+                    completed: order.status === 'completed'
+                }
+            ];
+
+            // Handle failed orders
+            if (order.status === 'failed') {
+                timeline.push({
+                    status: 'failed',
+                    title: 'Failed',
+                    description: order.failureReason || 'Order processing failed',
+                    date: order.processedAt,
+                    completed: true
+                });
+            }
+
+            orderTimeline.innerHTML = timeline.map(item => `
+                <div class="timeline-item ${item.completed ? 'completed' : ''}">
+                    <div class="timeline-dot ${item.completed ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}">
+                        ${item.completed ? '<i class="fas fa-check"></i>' : '<i class="fas fa-clock"></i>'}
+                    </div>
+                    <div>
+                        <h3 class="font-semibold ${item.completed ? 'text-green-600' : 'text-gray-600'}">${item.title}</h3>
+                        <p class="text-sm text-gray-600 mb-1">${item.description}</p>
+                        ${item.date ? `<p class="text-xs text-gray-500">${new Date(item.date).toLocaleString()}</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Show error
+        function showError() {
+            loading.classList.add('hidden');
+            orderDetails.classList.add('hidden');
+            errorState.classList.remove('hidden');
+        }
+
+        // Auto-refresh for pending orders
+        if (orderId) {
+            setInterval(() => {
+                // Only auto-refresh if order is still pending or processing
+                const currentStatus = statusText.textContent.toLowerCase();
+                if (currentStatus === 'pending' || currentStatus === 'processing') {
+                    loadOrder();
+                }
+            }, 30000); // Refresh every 30 seconds
+        }
+    </script>
+</body>
+</html>
